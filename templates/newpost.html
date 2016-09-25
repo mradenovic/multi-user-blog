@@ -6,16 +6,16 @@
     <form method="post">
       <label>
         <div>subject</div>
-        <input type="text" name="subject" value="{{subject}}">
+        <input class="new-post new-post-subject" type="text" name="subject" value="{{subject}}">
       </label>
 
       <label>
         <div>blog</div>
-        <textarea name="content">{{content}}</textarea>
+        <textarea class="new-post new-post-content" name="content">{{content}}</textarea>
       </label>
 
       <div class="error">{{error}}</div>
 
-      <input type="submit">
+      <input class="new-post-submit" type="submit">
     </form>
 {% endblock %}
