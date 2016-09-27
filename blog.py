@@ -296,6 +296,5 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
-                               ('/unit3/welcome', Unit3Welcome),
-                               ],
+                               ('/unit3/welcome', Unit3Welcome)],
                               debug=True)
