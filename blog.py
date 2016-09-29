@@ -253,7 +253,7 @@ class Logout(BlogHandler):
         self.logout()
         self.redirect('/blog')
 
-class Unit3Welcome(BlogHandler):
+class Welcome(BlogHandler):
     def get(self):
         if self.user:
             self.render('welcome.html', username=self.user.name)
@@ -267,5 +267,5 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
-                               ('/unit3/welcome', Unit3Welcome)],
+                               ('/welcome', Welcome)],
                               debug=True)
