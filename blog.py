@@ -64,11 +64,6 @@ def render_post(response, post):
     response.out.write('<b>' + post.subject + '</b><br>')
     response.out.write(post.content)
 
-class MainPage(BlogHandler):
-    def get(self):
-        self.write('Hello, Udacity!')
-
-
 ##### user stuff
 def make_salt(length=5):
     return ''.join(random.choice(letters) for x in xrange(length))
@@ -260,7 +255,7 @@ class Welcome(BlogHandler):
         else:
             self.redirect('/signup')
 
-app = webapp2.WSGIApplication([('/', MainPage),
+app = webapp2.WSGIApplication([
                                ('/blog/?', BlogFront),
                                ('/blog/([0-9]+)', PostPage),
                                ('/blog/newpost', NewPost),
