@@ -150,7 +150,7 @@ class NewPost(BlogHandler):
 
     def post(self):
         if not self.user:
-            self.redirect('/blog')
+            self.redirect('/')
 
         subject = self.request.get('subject')
         content = self.request.get('content')
@@ -158,7 +158,7 @@ class NewPost(BlogHandler):
         if subject and content:
             p = Post(parent=blog_key(), subject=subject, content=content)
             p.put()
-            self.redirect('/blog/%s' % str(p.key().id()))
+            self.redirect('/%s' % str(p.key().id()))
         else:
             error = "subject and content, please!"
             self.render("newpost.html", subject=subject, content=content, error=error)
@@ -225,7 +225,7 @@ class Register(Signup):
             u.put()
 
             self.login(u)
-            self.redirect('/blog')
+            self.redirect('/')
 
 class Login(BlogHandler):
     def get(self):
@@ -238,7 +238,7 @@ class Login(BlogHandler):
         u = User.login(username, password)
         if u:
             self.login(u)
-            self.redirect('/blog')
+            self.redirect('/')
         else:
             msg = 'Invalid login'
             self.render('login-form.html', error=msg)
@@ -246,7 +246,7 @@ class Login(BlogHandler):
 class Logout(BlogHandler):
     def get(self):
         self.logout()
-        self.redirect('/blog')
+        self.redirect('/')
 
 class Welcome(BlogHandler):
     def get(self):
@@ -256,9 +256,9 @@ class Welcome(BlogHandler):
             self.redirect('/signup')
 
 app = webapp2.WSGIApplication([
-                               ('/blog/?', BlogFront),
-                               ('/blog/([0-9]+)', PostPage),
-                               ('/blog/newpost', NewPost),
+                               ('/?', BlogFront),
+                               ('/([0-9]+)', PostPage),
+                               ('/newpost', NewPost),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
