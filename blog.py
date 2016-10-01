@@ -118,6 +118,7 @@ def blog_key(name='default'):
 class Post(db.Model):
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
+    created_by = db.ReferenceProperty(User, required=True)
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
 
@@ -156,7 +157,7 @@ class NewPost(BlogHandler):
         content = self.request.get('content')
 
         if subject and content:
-            p = Post(parent=blog_key(), subject=subject, content=content)
+            p = Post(parent=blog_key(), subject=subject, content=content, created_by=self.user)
             p.put()
             self.redirect('/%s' % str(p.key().id()))
         else:
