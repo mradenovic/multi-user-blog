@@ -149,6 +149,25 @@ class PostPage(BlogHandler):
 
         self.render("permalink.html", post=blog_post)
 
+    def post(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        blog_post = db.get(key)
+
+        if not self.user:
+            error = "only logged in users can post comments!"
+            self.render("permalink.html", post=blog_post, error=error)
+            return
+
+        content = self.request.get('content')
+
+        if content:
+            comment = Comment(content=content, post=blog_post, created_by=self.user)
+            comment.put()
+            self.redirect('/%s' % str(blog_post.key().id()))
+        else:
+            error = "content, please!"
+            self.render("permalink.html", post=blog_post, error=error)
+
 class NewPost(BlogHandler):
     def get(self):
         if self.user:
