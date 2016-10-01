@@ -126,6 +126,13 @@ class Post(db.Model):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("post.html", p=self)
 
+class Comment(db.Model):
+    content = db.TextProperty(required=True)
+    post = db.ReferenceProperty(Post, required=True)
+    created_by = db.ReferenceProperty(User, required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+
 class BlogFront(BlogHandler):
     def get(self):
         posts = Post.all().order('-created')
