@@ -141,13 +141,13 @@ class BlogFront(BlogHandler):
 class PostPage(BlogHandler):
     def get(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
-        post = db.get(key)
+        blog_post = db.get(key)
 
-        if not post:
+        if not blog_post:
             self.error(404)
             return
 
-        self.render("permalink.html", post=post)
+        self.render("permalink.html", post=blog_post)
 
 class NewPost(BlogHandler):
     def get(self):
