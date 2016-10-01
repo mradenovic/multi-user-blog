@@ -59,12 +59,17 @@ label + label {
   font-size: 20px;
 }
 
-.new-post-content {
+.new-post-content{
   height: 400px;
   font-size: 17px;
 }
 
-.new-post-submit {
+.new-comment-content{
+  height: 150px;
+  font-size: 17px;
+}
+
+.new-post-submit, .new-comment-submit {
   font-size: 24px;
 }
 
