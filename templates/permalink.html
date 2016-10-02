@@ -15,4 +15,11 @@
       <input class="new-comment-submit" type="submit">
     </form>
   </div>
+
+  <h4>Comments</h4>
+
+  {% for comment in post.comment_set %}
+    {{ comment.render() | safe }}
+    <br><br>
+  {% endfor %}
 {% endblock %}

@@ -133,6 +133,10 @@ class Comment(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
 
+    def render(self):
+        self._render_text = self.content.replace('\n', '<br>')
+        return render_str("comment.html", comment=self)
+
 class BlogFront(BlogHandler):
     def get(self):
         posts = Post.all().order('-created')
@@ -152,6 +156,7 @@ class PostPage(BlogHandler):
     def post(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         blog_post = db.get(key)
+        error = ''
 
         if not self.user:
             error = "only logged in users can post comments!"
@@ -163,7 +168,8 @@ class PostPage(BlogHandler):
         if content:
             comment = Comment(content=content, post=blog_post, created_by=self.user)
             comment.put()
-            self.redirect('/%s' % str(blog_post.key().id()))
+            # self.redirect('/%s' % str(blog_post.key().id()))
+            self.render("permalink.html", post=blog_post, error=error)
         else:
             error = "content, please!"
             self.render("permalink.html", post=blog_post, error=error)

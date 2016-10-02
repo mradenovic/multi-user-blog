@@ -99,6 +99,10 @@ label + label {
     color: #222;
 }
 
+.date {
+  color: #999;
+}
+
 .post-date {
     position: absolute;
     right: 0px;
@@ -107,6 +111,14 @@ label + label {
 
 }
 
+.post-user {
+  font-weight: bold;
+}
+
 .post-content {
     margin-top: 5px;
+}
+
+.comment {
+  width: 500px;
 }

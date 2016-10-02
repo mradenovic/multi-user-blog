@@ -1,0 +1,17 @@
+<div class="comment">
+  <hr>
+  <div class="post-comment">
+    <span class="post-content">
+      {{comment._render_text | safe}} -
+    </span>
+
+    <span class="post-user">
+      {{comment.created_by.name}}
+    </span>
+
+    <span class="date">
+      {{comment.created.strftime("%b %d, %Y")}}
+    </span>
+  </div>
+
+</div>
