@@ -7,7 +7,7 @@
   {{post.render_comment_form(error) | safe}}
   <h4>Comments</h4>
 
-  {% for comment in post.comment_set %}
+  {% for comment in post.comment_set.order('-created') %}
     {{ comment.render() | safe }}
     <br><br>
   {% endfor %}
