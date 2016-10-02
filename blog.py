@@ -126,6 +126,9 @@ class Post(db.Model):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("post.html", p=self)
 
+    def render_comment_form(self, error):
+        return render_str('comment-form.html', error=error)
+
 class Comment(db.Model):
     content = db.TextProperty(required=True)
     post = db.ReferenceProperty(Post, required=True)

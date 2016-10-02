@@ -4,18 +4,7 @@
   {{post.render() | safe}}
 
   <div class="comments">
-    <form method="post">
-      <label>
-        <h5>Comment</h5>
-        <textarea class="new-post new-comment-content" name="content">{{content}}</textarea>
-      </label>
-
-      <div class="error">{{error}}</div>
-
-      <input class="new-comment-submit" type="submit">
-    </form>
-  </div>
-
+  {{post.render_comment_form(error) | safe}}
   <h4>Comments</h4>
 
   {% for comment in post.comment_set %}
