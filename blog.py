@@ -170,7 +170,9 @@ class PostPage(BlogHandler):
 
         if content:
             comment = Comment(content=content, post=blog_post, created_by=self.user)
-            comment.put()
+            key = comment.put()
+            # get updated object
+            blog_post = db.get(key).post
             # self.redirect('/%s' % str(blog_post.key().id()))
             self.render("permalink.html", post=blog_post, error=error)
         else:
