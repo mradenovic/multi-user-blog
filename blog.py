@@ -37,6 +37,7 @@ class BlogHandler(webapp2.RequestHandler):
         return render_str(template, **params)
 
     def render(self, template, **kw):
+        print locals()
         self.write(self.render_str(template, **kw))
 
     def set_secure_cookie(self, name, val):
@@ -200,6 +201,8 @@ class NewPost(BlogHandler):
         if post_id:
             key = db.Key.from_path('Post', int(post_id), parent=blog_key())
             p = db.get(key)
+        else:
+            p = None
 
         if not self.user:
             self.redirect('/')
@@ -324,7 +327,7 @@ app = webapp2.WSGIApplication([
                                ('/([0-9]+)', PostPage),
                                ('/edit/post/([0-9]+)', PostEdit),
                                ('/delete/post/([0-9]+)', PostDelete),
-                               ('/newpost', NewPost),
+                               ('/newpost/()', NewPost),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
