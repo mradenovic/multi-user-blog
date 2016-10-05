@@ -179,14 +179,28 @@ class PostPage(BlogHandler):
             error = "content, please!"
             self.render("permalink.html", post=blog_post, error=error)
 
+class PostDelete(BlogHandler):
+    def get(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        blog_post = db.get(key)
+
+        for comment in blog_post.comment_set:
+            comment.delete()
+        blog_post.delete()
+        self.redirect('/')
+
 class NewPost(BlogHandler):
-    def get(self):
+    def get(self, post_id):
         if self.user:
             self.render("newpost.html")
         else:
             self.redirect("/login")
 
-    def post(self):
+    def post(self, post_id):
+        if post_id:
+            key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+            p = db.get(key)
+
         if not self.user:
             self.redirect('/')
 
@@ -194,12 +208,24 @@ class NewPost(BlogHandler):
         content = self.request.get('content')
 
         if subject and content:
-            p = Post(parent=blog_key(), subject=subject, content=content, created_by=self.user)
+            if not p:
+                p = Post(parent=blog_key(), subject=subject, content=content, created_by=self.user)
+            else:
+                p.parent = blog_key()
+                p.subject = subject
+                p.content = content
             p.put()
             self.redirect('/%s' % str(p.key().id()))
         else:
             error = "subject and content, please!"
             self.render("newpost.html", subject=subject, content=content, error=error)
+
+class PostEdit(NewPost):
+    def get(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        blog_post = db.get(key)
+
+        self.render('newpost.html', content=blog_post.content, subject=blog_post.subject)
 
 ###### Unit 2 HW's
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -296,6 +322,8 @@ class Welcome(BlogHandler):
 app = webapp2.WSGIApplication([
                                ('/?', BlogFront),
                                ('/([0-9]+)', PostPage),
+                               ('/edit/post/([0-9]+)', PostEdit),
+                               ('/delete/post/([0-9]+)', PostDelete),
                                ('/newpost', NewPost),
                                ('/signup', Register),
                                ('/login', Login),
