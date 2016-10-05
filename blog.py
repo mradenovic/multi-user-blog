@@ -123,6 +123,10 @@ class Post(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
 
+    @classmethod
+    def by_id(cls, post_id):
+        return cls.get_by_id(int(post_id))
+
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("post.html", p=self)
@@ -148,9 +152,7 @@ class BlogFront(BlogHandler):
 
 class PostPage(BlogHandler):
     def get(self, post_id):
-        blog_post = Post.get_by_id(int(post_id))
-        # key = db.Key.from_path('Post', int(post_id), parent=blog_key())
-        # blog_post = db.get(key)
+        blog_post = Post.by_id(post_id)
 
         if not blog_post:
             self.error(404)
@@ -159,8 +161,7 @@ class PostPage(BlogHandler):
         self.render("permalink.html", post=blog_post)
 
     def post(self, post_id):
-        key = db.Key.from_path('Post', int(post_id))
-        blog_post = db.get(key)
+        blog_post = Post.by_id(post_id)
         error = ''
 
         if not self.user:
@@ -183,8 +184,7 @@ class PostPage(BlogHandler):
 
 class PostDelete(BlogHandler):
     def get(self, post_id):
-        key = db.Key.from_path('Post', int(post_id))
-        blog_post = db.get(key)
+        blog_post = Post.by_id(post_id)
 
         for comment in blog_post.comment_set:
             comment.delete()
@@ -200,8 +200,7 @@ class NewPost(BlogHandler):
 
     def post(self, post_id):
         if post_id:
-            key = db.Key.from_path('Post', int(post_id))
-            p = db.get(key)
+            p = Post.by_id(post_id)
         else:
             p = None
 
@@ -215,7 +214,6 @@ class NewPost(BlogHandler):
             if not p:
                 p = Post(subject=subject, content=content, created_by=self.user)
             else:
-                p.parent = blog_key()
                 p.subject = subject
                 p.content = content
             p.put()
@@ -226,8 +224,7 @@ class NewPost(BlogHandler):
 
 class PostEdit(NewPost):
     def get(self, post_id):
-        key = db.Key.from_path('Post', int(post_id))
-        blog_post = db.get(key)
+        blog_post = Post.by_id(post_id)
 
         self.render('newpost.html', content=blog_post.content, subject=blog_post.subject)
 
