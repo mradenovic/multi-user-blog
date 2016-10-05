@@ -112,16 +112,17 @@ class User(db.Model):
 
 ##### blog stuff
 
-class Post(db.Model):
+class BlogModel(db.Model):
+    @classmethod
+    def by_id(cls, model_id):
+        return cls.get_by_id(int(model_id))
+
+class Post(BlogModel):
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created_by = db.ReferenceProperty(User, required=True)
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
-
-    @classmethod
-    def by_id(cls, post_id):
-        return cls.get_by_id(int(post_id))
 
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
