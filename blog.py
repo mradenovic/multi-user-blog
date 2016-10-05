@@ -112,9 +112,6 @@ class User(db.Model):
 
 ##### blog stuff
 
-def blog_key(name='default'):
-    return db.Key.from_path('blogs', name)
-
 class Post(db.Model):
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
