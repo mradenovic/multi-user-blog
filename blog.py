@@ -148,8 +148,9 @@ class BlogFront(BlogHandler):
 
 class PostPage(BlogHandler):
     def get(self, post_id):
-        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
-        blog_post = db.get(key)
+        blog_post = Post.get_by_id(int(post_id))
+        # key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        # blog_post = db.get(key)
 
         if not blog_post:
             self.error(404)
@@ -158,7 +159,7 @@ class PostPage(BlogHandler):
         self.render("permalink.html", post=blog_post)
 
     def post(self, post_id):
-        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        key = db.Key.from_path('Post', int(post_id))
         blog_post = db.get(key)
         error = ''
 
@@ -182,7 +183,7 @@ class PostPage(BlogHandler):
 
 class PostDelete(BlogHandler):
     def get(self, post_id):
-        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        key = db.Key.from_path('Post', int(post_id))
         blog_post = db.get(key)
 
         for comment in blog_post.comment_set:
@@ -199,7 +200,7 @@ class NewPost(BlogHandler):
 
     def post(self, post_id):
         if post_id:
-            key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+            key = db.Key.from_path('Post', int(post_id))
             p = db.get(key)
         else:
             p = None
@@ -212,7 +213,7 @@ class NewPost(BlogHandler):
 
         if subject and content:
             if not p:
-                p = Post(parent=blog_key(), subject=subject, content=content, created_by=self.user)
+                p = Post(subject=subject, content=content, created_by=self.user)
             else:
                 p.parent = blog_key()
                 p.subject = subject
@@ -225,7 +226,7 @@ class NewPost(BlogHandler):
 
 class PostEdit(NewPost):
     def get(self, post_id):
-        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        key = db.Key.from_path('Post', int(post_id))
         blog_post = db.get(key)
 
         self.render('newpost.html', content=blog_post.content, subject=blog_post.subject)
