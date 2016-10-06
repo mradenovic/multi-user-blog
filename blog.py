@@ -131,6 +131,13 @@ class Post(BlogModel):
     def render_comment_form(self, error):
         return render_str('comment-form.html', error=error)
 
+class Like(BlogModel):
+    post = db.ReferenceProperty(Post, required=True)
+    liked_by = db.ReferenceProperty(User, required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+
+
 class Comment(db.Model):
     content = db.TextProperty(required=True)
     post = db.ReferenceProperty(Post, required=True)
