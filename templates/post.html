@@ -1,11 +1,9 @@
 <div class="post">
   <div class="post-heading">
-    <a href="{{'/%d'%p.key().id()}}" class="post-title">
+    <p class="post-title">
       {{p.subject}}
-    </a>
+    </p>
 
-    <a href="{{'/edit/post/%d'%p.key().id()}}" class="login-link">edit</a>
-    <a href="{{'/delete/post/%d'%p.key().id()}}" class="login-link">delete</a>
     <div class="post-date">
       by {{p.created_by.name}}
       {{p.created.strftime("%b %d, %Y")}}
@@ -14,5 +12,11 @@
 
   <div class="post-content">
     {{p._render_text | safe}}
+  </div>
+  <br>
+  <div class="edit-links">
+    <a href="{{'/%d'%p.key().id()}}" class="login-link">view</a> |
+    <a href="{{'/edit/post/%d'%p.key().id()}}" class="login-link">edit</a> |
+    <a href="{{'/delete/post/%d'%p.key().id()}}" class="login-link">delete</a>
   </div>
 </div>

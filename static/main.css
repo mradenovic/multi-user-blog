@@ -26,6 +26,10 @@ body {
     color: gray;
 }
 
+.edit-links {
+  font-size: 20px;
+}
+
 .login-link:hover {
     text-decoration: underline;
 }
