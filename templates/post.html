@@ -7,6 +7,7 @@
     <a href="{{'/edit/post/%d'%p.key().id()}}" class="login-link">edit</a>
     <a href="{{'/delete/post/%d'%p.key().id()}}" class="login-link">delete</a>
     <div class="post-date">
+      by {{p.created_by.name}}
       {{p.created.strftime("%b %d, %Y")}}
     </div>
   </div>
