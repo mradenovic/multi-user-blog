@@ -153,6 +153,7 @@ class PostHandler(BlogHandler):
     def get(self, post_id):
         if not self.user:
             self.redirect('/login')
+            return
 
         if not post_id:
             return
@@ -209,12 +210,12 @@ class PostDelete(PostHandler):
         blog_post.delete()
         self.redirect('/')
 
-class NewPost(BlogHandler):
+class NewPost(PostHandler):
     def get(self, post_id):
-        if self.user:
-            self.render("newpost.html")
-        else:
-            self.redirect("/login")
+        super(NewPost, self).get(post_id)
+        if self.request.path.find('edit') > -1:
+            return
+        self.render("newpost.html")
 
     def post(self, post_id):
         if post_id:
@@ -242,6 +243,9 @@ class NewPost(BlogHandler):
 
 class PostEdit(NewPost):
     def get(self, post_id):
+        super(PostEdit, self).get(post_id)
+        if self.noOwner:
+            return
         blog_post = Post.by_id(post_id)
 
         self.render('newpost.html', content=blog_post.content, subject=blog_post.subject)
