@@ -257,6 +257,18 @@ class PostEdit(PostCreate):
 
         self.render('newpost.html', content=blog_post.content, subject=blog_post.subject)
 
+class PostLike(PostHandler):
+    def get(self, post_id):
+        super(PostLike, self).get(post_id)
+
+        error=''
+        blog_post = Post.by_id(post_id)
+        like = Like(post=blog_post, liked_by=self.user)
+        like.put()
+
+        self.render("permalink.html", post=blog_post, error=error)
+
+
 ###### Unit 2 HW's
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
@@ -354,6 +366,7 @@ app = webapp2.WSGIApplication([('/?', BlogFront),
                                ('/post/edit/([0-9]+)', PostEdit),
                                ('/post/delete/([0-9]+)', PostDelete),
                                ('/post/create/()', PostCreate),
+                               ('/post/like/([0-9]+)', PostLike),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
