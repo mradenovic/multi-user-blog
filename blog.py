@@ -147,6 +147,22 @@ class BlogFront(BlogHandler):
         posts = Post.all().order('-created')
         self.render('front.html', posts=posts)
 
+class PostHandler(BlogHandler):
+    noOwner = True
+
+    def get(self, post_id):
+        if not self.user:
+            self.redirect('/login')
+
+        if not post_id:
+            return
+        blog_post = Post.by_id(post_id)
+        if self.user.key() == blog_post.created_by.key():
+            self.noOwner = False
+        else:
+            error = 'Only owner can change post'
+            self.render("permalink.html", post=blog_post, edit_error=error)
+
 class PostPage(BlogHandler):
     def get(self, post_id):
         blog_post = Post.by_id(post_id)
@@ -179,8 +195,13 @@ class PostPage(BlogHandler):
             error = "content, please!"
             self.render("permalink.html", post=blog_post, error=error)
 
-class PostDelete(BlogHandler):
+class PostDelete(PostHandler):
     def get(self, post_id):
+        super(PostDelete, self).get(post_id)
+
+        if self.noOwner:
+            return
+
         blog_post = Post.by_id(post_id)
 
         for comment in blog_post.comment_set:
