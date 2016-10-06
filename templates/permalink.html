@@ -2,6 +2,10 @@
 
 {% block content %}
   {{post.render() | safe}}
+  <hr>
+  <div class="error">
+    {{edit_error}}
+  </div>
 
   <div class="comments">
   {{post.render_comment_form(error) | safe}}
