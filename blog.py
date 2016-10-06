@@ -164,7 +164,7 @@ class PostHandler(BlogHandler):
             error = 'Only owner can change post'
             self.render("permalink.html", post=blog_post, edit_error=error)
 
-class PostPage(BlogHandler):
+class PostView(BlogHandler):
     def get(self, post_id):
         blog_post = Post.by_id(post_id)
 
@@ -210,9 +210,9 @@ class PostDelete(PostHandler):
         blog_post.delete()
         self.redirect('/')
 
-class NewPost(PostHandler):
+class PostCreate(PostHandler):
     def get(self, post_id):
-        super(NewPost, self).get(post_id)
+        super(PostCreate, self).get(post_id)
         if self.request.path.find('edit') > -1:
             return
         self.render("newpost.html")
@@ -241,7 +241,7 @@ class NewPost(PostHandler):
             error = "subject and content, please!"
             self.render("newpost.html", subject=subject, content=content, error=error)
 
-class PostEdit(NewPost):
+class PostEdit(PostCreate):
     def get(self, post_id):
         super(PostEdit, self).get(post_id)
         if self.noOwner:
@@ -344,10 +344,10 @@ class Welcome(BlogHandler):
 
 app = webapp2.WSGIApplication([
                                ('/?', BlogFront),
-                               ('/post/view/([0-9]+)', PostPage),
+                               ('/post/view/([0-9]+)', PostView),
                                ('/post/edit/([0-9]+)', PostEdit),
                                ('/post/delete/([0-9]+)', PostDelete),
-                               ('/post/create/()', NewPost),
+                               ('/post/create/()', PostCreate),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
