@@ -344,10 +344,10 @@ class Welcome(BlogHandler):
 
 app = webapp2.WSGIApplication([
                                ('/?', BlogFront),
-                               ('/([0-9]+)', PostPage),
-                               ('/edit/post/([0-9]+)', PostEdit),
-                               ('/delete/post/([0-9]+)', PostDelete),
-                               ('/newpost/()', NewPost),
+                               ('/post/view/([0-9]+)', PostPage),
+                               ('/post/edit/([0-9]+)', PostEdit),
+                               ('/post/delete/([0-9]+)', PostDelete),
+                               ('/post/create/()', NewPost),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
