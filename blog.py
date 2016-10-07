@@ -182,8 +182,8 @@ class PostHandler(BlogHandler):
 
     def set_user_is_post_owner(self, post_id):
         blog_post = Post.by_id(post_id)
-        isOwner = self.user.key() == blog_post.created_by.key()
-        self.user_is_post_owner = isOwner
+        is_owner = self.user.key() == blog_post.created_by.key()
+        self.user_is_post_owner = is_owner
 
     def set_blog_post(self, post_id):
         self.blog_post = Post.by_id(post_id)
