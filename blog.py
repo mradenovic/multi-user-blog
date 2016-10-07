@@ -155,6 +155,10 @@ class BlogFront(BlogHandler):
         self.render('front.html', posts=posts)
 
 class PostHandler(BlogHandler):
+    blog_post = None
+    user_is_post_owner = None
+    action_is_like = None
+    like = None
     noOwner = True
 
     def get(self, post_id):
@@ -162,14 +166,38 @@ class PostHandler(BlogHandler):
             self.redirect('/login')
             return
 
-        if not post_id:
+        # initialize variables
+        self.set_action_is_like()
+        if post_id:
+            self.set_blog_post(post_id)
+            self.set_like()
+            self.set_user_is_post_owner(post_id)
+        else:
             return
-        blog_post = Post.by_id(post_id)
-        if self.user.key() == blog_post.created_by.key():
+        if self.action_is_like:
+            return
+
+        if self.user_is_post_owner:
             self.noOwner = False
         else:
             error = 'Only owner can change post'
-            self.render("permalink.html", post=blog_post, edit_error=error)
+            self.render("permalink.html", post=self.blog_post, edit_error=error)
+
+    def set_user_is_post_owner(self, post_id):
+        blog_post = Post.by_id(post_id)
+        isOwner = self.user.key() == blog_post.created_by.key()
+        self.user_is_post_owner = isOwner
+
+    def set_blog_post(self, post_id):
+        self.blog_post = Post.by_id(post_id)
+
+    def set_like(self):
+        self.like = Like.gql('WHERE post = :post AND liked_by = :user',
+                             post=self.blog_post.key(),
+                             user=self.user.key()).get()
+
+    def set_action_is_like(self):
+        self.action_is_like = self.request.path.find('like') > -1
 
 class PostView(BlogHandler):
     def get(self, post_id):
@@ -243,7 +271,7 @@ class PostCreate(PostHandler):
                 p.subject = subject
                 p.content = content
             p.put()
-            self.redirect('/%s' % str(p.key().id()))
+            self.redirect('/post/view/%s' % str(p.key().id()))
         else:
             error = "subject and content, please!"
             self.render("newpost.html", subject=subject, content=content, error=error)
@@ -260,13 +288,20 @@ class PostEdit(PostCreate):
 class PostLike(PostHandler):
     def get(self, post_id):
         super(PostLike, self).get(post_id)
+        if not self.blog_post:
+            return
+        params = {}
+        params['post'] = self.blog_post
+        if self.user_is_post_owner:
+            params['edit_error']='You can not like your own post'
+        elif self.like:
+            print 'liked_by: %s post: %s' % (self.like.liked_by.name, self.like.post.subject)
+            params['edit_error']='You can like only once'
+        else:
+            like = Like(post=self.blog_post, liked_by=self.user)
+            like.put()
 
-        error=''
-        blog_post = Post.by_id(post_id)
-        like = Like(post=blog_post, liked_by=self.user)
-        like.put()
-
-        self.render("permalink.html", post=blog_post, error=error)
+        self.render("permalink.html", **params)
 
 
 ###### Unit 2 HW's
