@@ -235,14 +235,12 @@ class PostDelete(PostHandler):
     def get(self, post_id):
         super(PostDelete, self).get(post_id)
 
-        if self.noOwner:
+        if not self.user_is_post_owner:
             return
 
-        blog_post = Post.by_id(post_id)
-
-        for comment in blog_post.comment_set:
+        for comment in self.blog_post.comment_set:
             comment.delete()
-        blog_post.delete()
+        self.blog_post.delete()
         self.redirect('/')
 
 class PostCreate(PostHandler):
