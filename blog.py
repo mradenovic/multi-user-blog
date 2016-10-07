@@ -302,10 +302,10 @@ class PostLike(PostHandler):
         params = {}
         params['post'] = self.blog_post
         if self.user_is_post_owner:
-            params['edit_error']='You can not like your own post'
+            params['edit_error'] = 'You can not like your own post'
         elif self.like:
             print 'liked_by: %s post: %s' % (self.like.liked_by.name, self.like.post.subject)
-            params['edit_error']='You can like only once'
+            params['edit_error'] = 'You can like only once'
         else:
             like = Like(post=self.blog_post, liked_by=self.user)
             like.put()
