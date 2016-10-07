@@ -1,3 +1,4 @@
+"""Udacity Project: Multi User Blog"""
 import os
 import re
 import random
@@ -29,6 +30,7 @@ def check_secure_val(secure_val):
         return val
 
 class BlogHandler(webapp2.RequestHandler):
+    """Class for handling common Blog tasks"""
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
 
@@ -82,6 +84,7 @@ def users_key(group='default'):
     return db.Key.from_path('users', group)
 
 class User(db.Model):
+    """Class for User model in datastore"""
     name = db.StringProperty(required=True)
     pw_hash = db.StringProperty(required=True)
     email = db.StringProperty()
@@ -118,6 +121,7 @@ class BlogModel(db.Model):
         return cls.get_by_id(int(model_id))
 
 class Post(BlogModel):
+    """Class for Post model in datastore"""
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created_by = db.ReferenceProperty(User, required=True)
@@ -155,12 +159,14 @@ class BlogFront(BlogHandler):
         self.render('front.html', posts=posts)
 
 class PostHandler(BlogHandler):
+    """Class for handling common Blog Post tasks"""
     blog_post = None
     user_is_post_owner = None
     action_is_like = None
     like = None
 
     def get(self, post_id):
+        """Method for handling common Blog Post tasks"""
         if not self.user:
             self.redirect('/login')
             return
@@ -197,6 +203,7 @@ class PostHandler(BlogHandler):
         self.action_is_like = self.request.path.find('like') > -1
 
 class PostView(BlogHandler):
+    """Class for handling Blog Post tasks"""
     def get(self, post_id):
         blog_post = Post.by_id(post_id)
 
@@ -207,6 +214,7 @@ class PostView(BlogHandler):
         self.render("permalink.html", post=blog_post)
 
     def post(self, post_id):
+        """Post comment"""
         blog_post = Post.by_id(post_id)
         error = ''
 
@@ -248,6 +256,7 @@ class PostCreate(PostHandler):
         self.render("newpost.html")
 
     def post(self, post_id):
+        """Create new blog post or edit existing one"""
         if post_id:
             p = Post.by_id(post_id)
         else:
@@ -314,10 +323,12 @@ def valid_email(email):
     return not email or EMAIL_RE.match(email)
 
 class Signup(BlogHandler):
+    """Class for nadling signup tasks"""
     def get(self):
         self.render("signup-form.html")
 
     def post(self):
+        """Post signup data"""
         have_error = False
         self.username = self.request.get('username')
         self.password = self.request.get('password')
