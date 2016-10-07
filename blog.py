@@ -31,6 +31,8 @@ def check_secure_val(secure_val):
 
 class BlogHandler(webapp2.RequestHandler):
     """Class for handling common Blog tasks"""
+    user = None
+
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
 
@@ -127,6 +129,7 @@ class Post(BlogModel):
     created_by = db.ReferenceProperty(User, required=True)
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
+    _render_text = None
 
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
@@ -148,6 +151,7 @@ class Comment(db.Model):
     created_by = db.ReferenceProperty(User, required=True)
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
+    _render_text = None
 
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
@@ -324,6 +328,10 @@ def valid_email(email):
 
 class Signup(BlogHandler):
     """Class for nadling signup tasks"""
+    username = None
+    password = None
+    verify = None
+    email = None
     def get(self):
         self.render("signup-form.html")
 
