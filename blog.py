@@ -159,7 +159,6 @@ class PostHandler(BlogHandler):
     user_is_post_owner = None
     action_is_like = None
     like = None
-    noOwner = True
 
     def get(self, post_id):
         if not self.user:
@@ -177,9 +176,7 @@ class PostHandler(BlogHandler):
         if self.action_is_like:
             return
 
-        if self.user_is_post_owner:
-            self.noOwner = False
-        else:
+        if not self.user_is_post_owner:
             error = 'Only owner can change post'
             self.render("permalink.html", post=self.blog_post, edit_error=error)
 
