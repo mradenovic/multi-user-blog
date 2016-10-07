@@ -279,11 +279,12 @@ class PostCreate(PostHandler):
 class PostEdit(PostCreate):
     def get(self, post_id):
         super(PostEdit, self).get(post_id)
-        if self.noOwner:
+        if not self.user_is_post_owner:
             return
-        blog_post = Post.by_id(post_id)
-
-        self.render('newpost.html', content=blog_post.content, subject=blog_post.subject)
+        params = {}
+        params['subject'] = self.blog_post.subject
+        params['content'] = self.blog_post.content
+        self.render('newpost.html', **params)
 
 class PostLike(PostHandler):
     def get(self, post_id):
