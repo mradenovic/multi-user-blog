@@ -300,10 +300,10 @@ class PostLike(PostHandler):
         if not self.blog_post or self.error:
             return
         params = {}
-        params['post'] = self.blog_post
         like = Like(post=self.blog_post, liked_by=self.user)
-        like.put()
-
+        key = like.put()
+        # get updated object
+        params['post'] = db.get(key).post
         self.render("permalink.html", **params)
 
 
