@@ -206,16 +206,16 @@ class PostHandler(BlogHandler):
                              user=self.user.key()).get()
 
 
-class PostView(BlogHandler):
+class PostView(PostHandler):
     """Class for handling Blog Post tasks"""
     def get(self, action, post_id):
-        blog_post = Post.by_id(post_id)
+        super(PostView, self).get(action, post_id)
 
-        if not blog_post:
+        if not self.blog_post:
             self.error(404)
             return
 
-        self.render("permalink.html", post=blog_post)
+        self.render("permalink.html", post=self.blog_post)
 
     def post(self, post_id):
         """Post comment"""
