@@ -218,7 +218,7 @@ class PostView(PostHandler):
 
         self.render("permalink.html", post=self.blog_post)
 
-    def post(self, post_id):
+    def post(self, action, post_id):
         """Post comment"""
         blog_post = Post.by_id(post_id)
         error = ''
@@ -260,7 +260,7 @@ class PostCreate(PostHandler):
             return
         self.render("post-form.html", action=action)
 
-    def post(self, post_id):
+    def post(self, action, post_id):
         """Create new blog post or edit existing one"""
         if post_id:
             p = Post.by_id(post_id)
