@@ -2,15 +2,16 @@
 
 {% block content %}
   {{post.render() | safe}}
-  <hr>
   <div class="error">
     {{edit_error}}
   </div>
 
+  {% if action == 'comment' %}
   <div class="comments">
   {{post.render_comment_form(error) | safe}}
-  <h4>Comments</h4>
+  {% endif %}
 
+  <h3>Comments</h3>
   {% for comment in post.comment_set.order('-created') %}
     {{ comment.render() | safe }}
     <br><br>
