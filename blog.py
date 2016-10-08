@@ -186,7 +186,7 @@ class PostHandler(BlogHandler):
             self.error = 'you can %s only your own post!' % action
         elif action in ['like'] and self.user_is_post_owner:
             self.error = 'you can not %s your own post!' % action
-        elif action in ['like'] and not self.user_is_post_owner:
+        elif action in ['like'] and self.like:
             self.error = 'you can %s any post only once!' % action
 
         if self.error:
