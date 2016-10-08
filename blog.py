@@ -169,7 +169,7 @@ class PostHandler(BlogHandler):
     action_is_like = None
     like = None
 
-    def get(self, post_id):
+    def get(self, action, post_id):
         """Method for handling common Blog Post tasks"""
         if not self.user:
             self.redirect('/login')
@@ -208,7 +208,7 @@ class PostHandler(BlogHandler):
 
 class PostView(BlogHandler):
     """Class for handling Blog Post tasks"""
-    def get(self, post_id):
+    def get(self, action, post_id):
         blog_post = Post.by_id(post_id)
 
         if not blog_post:
@@ -241,8 +241,8 @@ class PostView(BlogHandler):
             self.render("permalink.html", post=blog_post, error=error)
 
 class PostDelete(PostHandler):
-    def get(self, post_id):
-        super(PostDelete, self).get(post_id)
+    def get(self, action, post_id):
+        super(PostDelete, self).get(action, post_id)
 
         if not self.user_is_post_owner:
             return
@@ -253,8 +253,8 @@ class PostDelete(PostHandler):
         self.redirect('/')
 
 class PostCreate(PostHandler):
-    def get(self, post_id):
-        super(PostCreate, self).get(post_id)
+    def get(self, action, post_id):
+        super(PostCreate, self).get(action, post_id)
         if self.request.path.find('edit') > -1:
             return
         self.render("newpost.html")
@@ -285,8 +285,8 @@ class PostCreate(PostHandler):
             self.render("newpost.html", subject=subject, content=content, error=error)
 
 class PostEdit(PostCreate):
-    def get(self, post_id):
-        super(PostEdit, self).get(post_id)
+    def get(self, action, post_id):
+        super(PostEdit, self).get(action, post_id)
         if not self.user_is_post_owner:
             return
         params = {}
@@ -295,8 +295,8 @@ class PostEdit(PostCreate):
         self.render('newpost.html', **params)
 
 class PostLike(PostHandler):
-    def get(self, post_id):
-        super(PostLike, self).get(post_id)
+    def get(self, action, post_id):
+        super(PostLike, self).get(action, post_id)
         if not self.blog_post:
             return
         params = {}
@@ -412,11 +412,11 @@ class Welcome(BlogHandler):
             self.redirect('/signup')
 
 app = webapp2.WSGIApplication([('/?', BlogFront),
-                               ('/post/view/([0-9]+)', PostView),
-                               ('/post/edit/([0-9]+)', PostEdit),
-                               ('/post/delete/([0-9]+)', PostDelete),
-                               ('/post/create/()', PostCreate),
-                               ('/post/like/([0-9]+)', PostLike),
+                               ('/post/(view)/([0-9]+)', PostView),
+                               ('/post/(edit)/([0-9]+)', PostEdit),
+                               ('/post/(delete)/([0-9]+)', PostDelete),
+                               ('/post/(create)/()', PostCreate),
+                               ('/post/(like)/([0-9]+)', PostLike),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
