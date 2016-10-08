@@ -175,8 +175,7 @@ class PostHandler(BlogHandler):
             self.redirect('/login')
             return
         if action in ['view', 'edit', 'delete', 'like']:
-            if post_id:
-                self.set_blog_post(post_id)
+            if self.set_blog_post(post_id):
                 self.set_like()
                 self.set_user_is_post_owner(post_id)
             else:
@@ -199,11 +198,13 @@ class PostHandler(BlogHandler):
 
     def set_blog_post(self, post_id):
         self.blog_post = Post.by_id(post_id)
+        return self.blog_post
 
     def set_like(self):
         self.like = Like.gql('WHERE post = :post AND liked_by = :user',
                              post=self.blog_post.key(),
                              user=self.user.key()).get()
+        return self.like
 
 
 class PostView(PostHandler):
