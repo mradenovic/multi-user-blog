@@ -257,7 +257,7 @@ class PostCreate(PostHandler):
         super(PostCreate, self).get(action, post_id)
         if self.request.path.find('edit') > -1:
             return
-        self.render("newpost.html")
+        self.render("newpost.html", action=action)
 
     def post(self, post_id):
         """Create new blog post or edit existing one"""
@@ -292,6 +292,7 @@ class PostEdit(PostCreate):
         params = {}
         params['subject'] = self.blog_post.subject
         params['content'] = self.blog_post.content
+        params['action'] = action
         self.render('newpost.html', **params)
 
 class PostLike(PostHandler):
