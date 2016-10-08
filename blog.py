@@ -186,9 +186,8 @@ class PostHandler(BlogHandler):
             self.error = 'you can %s only your own post!' % action
         elif action in ['like'] and self.user_is_post_owner:
             self.error = 'you can not %s your own post!' % action
-
-        if action == 'like':
-            return
+        elif action in ['like'] and not self.user_is_post_owner:
+            self.error = 'you can %s any post only once!' % action
 
         if self.error:
             self.render("permalink.html", post=self.blog_post, edit_error=self.error)
@@ -298,18 +297,12 @@ class PostEdit(PostCreate):
 class PostLike(PostHandler):
     def get(self, action, post_id):
         super(PostLike, self).get(action, post_id)
-        if not self.blog_post:
+        if not self.blog_post or self.error:
             return
         params = {}
         params['post'] = self.blog_post
-        if self.user_is_post_owner:
-            params['edit_error'] = 'You can not like your own post'
-        elif self.like:
-            print 'liked_by: %s post: %s' % (self.like.liked_by.name, self.like.post.subject)
-            params['edit_error'] = 'You can like only once'
-        else:
-            like = Like(post=self.blog_post, liked_by=self.user)
-            like.put()
+        like = Like(post=self.blog_post, liked_by=self.user)
+        like.put()
 
         self.render("permalink.html", **params)
 
