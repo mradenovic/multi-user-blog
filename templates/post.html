@@ -18,6 +18,7 @@
     <a href="{{'/post/view/%d'%p.key().id()}}" class="login-link">view</a> |
     <a href="{{'/post/edit/%d'%p.key().id()}}" class="login-link">edit</a> |
     <a href="{{'/post/delete/%d'%p.key().id()}}" class="login-link">delete</a> |
+    <a href="{{'/post/comment/%d'%p.key().id()}}" class="login-link">comment</a> |
     <a href="{{'/post/like/%d'%p.key().id()}}" class="login-link">like</a>
     {{p.like_set.count()}} likes
   </div>
