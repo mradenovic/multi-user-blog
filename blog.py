@@ -174,7 +174,7 @@ class PostHandler(BlogHandler):
         if not self.user and action != 'view':
             self.redirect('/login')
             return
-        if action in ['view', 'edit', 'delete', 'like']:
+        if action not in ['create']:
             if self.set_blog_post(post_id):
                 self.set_like()
                 self.set_user_is_post_owner(post_id)
@@ -217,29 +217,6 @@ class PostView(PostHandler):
             return
 
         self.render("permalink.html", post=self.blog_post)
-
-    def post(self, action, post_id):
-        """Post comment"""
-        blog_post = Post.by_id(post_id)
-        error = ''
-
-        if not self.user:
-            error = "only logged in users can post comments!"
-            self.render("permalink.html", post=blog_post, error=error)
-            return
-
-        content = self.request.get('content')
-
-        if content:
-            comment = Comment(content=content, post=blog_post, created_by=self.user)
-            key = comment.put()
-            # get updated object
-            blog_post = db.get(key).post
-
-            self.render("permalink.html", post=blog_post, error=error)
-        else:
-            error = "content, please!"
-            self.render("permalink.html", post=blog_post, error=error)
 
 class PostDelete(PostHandler):
     def get(self, action, post_id):
@@ -307,6 +284,39 @@ class PostLike(PostHandler):
         # get updated object
         params['post'] = db.get(key).post
         self.render("permalink.html", **params)
+
+class PostComment(PostHandler):
+    def get(self, action, post_id):
+        super(PostComment, self).get(action, post_id)
+        if not self.blog_post or self.error:
+            return
+        params = {}
+        params['action'] = action
+        params['post'] = self.blog_post
+        self.render("permalink.html", **params)
+
+    def post(self, action, post_id):
+        """Post comment"""
+        blog_post = Post.by_id(post_id)
+        error = ''
+
+        if not self.user:
+            error = "only logged in users can post comments!"
+            self.render("permalink.html", post=blog_post, error=error)
+            return
+
+        content = self.request.get('content')
+
+        if content:
+            comment = Comment(content=content, post=blog_post, created_by=self.user)
+            key = comment.put()
+            # get updated object
+            blog_post = db.get(key).post
+
+            self.render("permalink.html", post=blog_post, error=error)
+        else:
+            error = "content, please!"
+            self.render("permalink.html", post=blog_post, error=error)
 
 
 ###### Unit 2 HW's
@@ -413,6 +423,7 @@ app = webapp2.WSGIApplication([('/?', BlogFront),
                                ('/post/(delete)/([0-9]+)', PostDelete),
                                ('/post/(create)/()', PostCreate),
                                ('/post/(like)/([0-9]+)', PostLike),
+                               ('/post/(comment)/([0-9]+)', PostComment),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
