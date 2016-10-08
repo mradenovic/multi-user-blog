@@ -166,29 +166,32 @@ class PostHandler(BlogHandler):
     """Class for handling common Blog Post tasks"""
     blog_post = None
     user_is_post_owner = None
-    action_is_like = None
     like = None
+    error = None
 
     def get(self, action, post_id):
         """Method for handling common Blog Post tasks"""
-        if not self.user:
+        if not self.user and action != 'view':
             self.redirect('/login')
             return
+        if action in ['view', 'edit', 'delete', 'like']:
+            if post_id:
+                self.set_blog_post(post_id)
+                self.set_like()
+                self.set_user_is_post_owner(post_id)
+            else:
+                return
 
-        # initialize variables
-        self.set_action_is_like()
-        if post_id:
-            self.set_blog_post(post_id)
-            self.set_like()
-            self.set_user_is_post_owner(post_id)
-        else:
-            return
-        if self.action_is_like:
+        if action in ['edit', 'delete'] and not self.user_is_post_owner:
+            self.error = 'you can %s only your own post!' % action
+        elif action in ['like'] and self.user_is_post_owner:
+            self.error = 'you can not %s your own post!' % action
+
+        if action == 'like':
             return
 
-        if not self.user_is_post_owner:
-            error = 'Only owner can change post'
-            self.render("permalink.html", post=self.blog_post, edit_error=error)
+        if self.error:
+            self.render("permalink.html", post=self.blog_post, edit_error=self.error)
 
     def set_user_is_post_owner(self, post_id):
         blog_post = Post.by_id(post_id)
@@ -203,8 +206,6 @@ class PostHandler(BlogHandler):
                              post=self.blog_post.key(),
                              user=self.user.key()).get()
 
-    def set_action_is_like(self):
-        self.action_is_like = self.request.path.find('like') > -1
 
 class PostView(BlogHandler):
     """Class for handling Blog Post tasks"""
