@@ -191,7 +191,7 @@ class PostHandler(BlogHandler):
 
     def set_user_is_post_owner(self, post_id):
         blog_post = Post.by_id(post_id)
-        is_owner = self.user.key() == blog_post.created_by.key()
+        is_owner = self.user and self.user.key() == blog_post.created_by.key()
         self.user_is_post_owner = is_owner
 
     def set_blog_post(self, post_id):
@@ -199,7 +199,7 @@ class PostHandler(BlogHandler):
         return self.blog_post
 
     def set_like(self):
-        self.like = Like.gql('WHERE post = :post AND liked_by = :user',
+        self.like = self.user and Like.gql('WHERE post = :post AND liked_by = :user',
                              post=self.blog_post.key(),
                              user=self.user.key()).get()
         return self.like
