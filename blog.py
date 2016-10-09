@@ -283,15 +283,44 @@ class PostLike(PostHandler):
         params['post'] = db.get(key).post
         self.render("permalink.html", **params)
 
-class PostComment(PostHandler):
+class CommentPermission:
+    comment = None
+    blog_post = None
+    user_is_comment_owner = None
+    message = None
+    params = {}
+
+    def init_env(self, action, entity_id):
+        if action in ['comment']:
+            self.blog_post = Post.by_id(entity_id)
+        elif action in ['edit', 'delete']:
+            self.comment = Comment.by_id(entity_id)
+            if self.comment:
+                self.blog_post = self.comment.post
+
+
+    def validate(self, action, entity_id):
+        """Validate if action is permited on entity"""
+        self.init_env(action, entity_id)
+        if not self.blog_post or (action in ['edit', 'delete'] and not self.comment):
+            return False
+        elif not self.user:
+            self.message = 'Only logged in users can %s!' % action
+        elif action in ['edit', 'delete'] and not self.user_is_comment_owner:
+            self.message = 'You can %s only your own post!' % action
+        return True
+
+
+class PostComment(BlogHandler, CommentPermission):
     def get(self, action, post_id):
-        super(PostComment, self).get(action, post_id)
-        if not self.blog_post or self.error:
-            return
-        params = {}
-        params['action'] = action
-        params['post'] = self.blog_post
-        self.render("permalink.html", **params)
+        if self.validate(action, post_id):
+            params = {}
+            if self.message:
+                params['edit_error'] = self.message
+            else:
+                params['action'] = action
+            params['post'] = self.blog_post
+            self.render("permalink.html", **params)
 
     def post(self, action, post_id):
         """Post comment"""
