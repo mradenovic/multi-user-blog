@@ -6,9 +6,9 @@
     {{edit_error}}
   </div>
 
-  {% if action == 'comment' %}
+  {% if action in ['comment', 'edit'] %}
   <div class="comments">
-  {{post.render_comment_form(error) | safe}}
+    {% include 'comment-form.html' %}
   </div>
   {% endif %}
 
