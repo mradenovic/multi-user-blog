@@ -135,8 +135,6 @@ class Post(BlogModel):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("post.html", p=self)
 
-    def render_comment_form(self, error):
-        return render_str('comment-form.html', error=error)
 
 class Like(BlogModel):
     post = db.ReferenceProperty(Post, required=True)
