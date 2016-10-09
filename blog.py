@@ -145,7 +145,7 @@ class Like(BlogModel):
     last_modified = db.DateTimeProperty(auto_now=True)
 
 
-class Comment(db.Model):
+class Comment(BlogModel):
     content = db.TextProperty(required=True)
     post = db.ReferenceProperty(Post, required=True)
     created_by = db.ReferenceProperty(User, required=True)
@@ -319,6 +319,17 @@ class PostComment(PostHandler):
             self.render("permalink.html", post=blog_post, error=error)
 
 
+class CommentEdit(PostComment):
+    def get(self, action, comment_id):
+        blog_comment = Comment.by_id(comment_id)
+        blog_post = blog_comment.post
+        params = {}
+        params['post'] = blog_post
+        params['content'] = blog_comment.content
+        params['action'] = action
+        self.render('permalink.html', **params)
+
+
 ###### Unit 2 HW's
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
@@ -424,6 +435,7 @@ app = webapp2.WSGIApplication([('/?', BlogFront),
                                ('/post/(create)/()', PostCreate),
                                ('/post/(like)/([0-9]+)', PostLike),
                                ('/post/(comment)/([0-9]+)', PostComment),
+                               ('/comment/(edit)/([0-9]+)', CommentEdit),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
