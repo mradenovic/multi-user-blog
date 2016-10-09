@@ -296,6 +296,7 @@ class CommentPermission:
         elif action in ['edit', 'delete']:
             self.comment = Comment.by_id(entity_id)
             if self.comment:
+                self.user_is_comment_owner = self.user and self.user.key() == self.comment.created_by.key()
                 self.blog_post = self.comment.post
 
 
@@ -307,7 +308,7 @@ class CommentPermission:
         elif not self.user:
             self.message = 'Only logged in users can %s!' % action
         elif action in ['edit', 'delete'] and not self.user_is_comment_owner:
-            self.message = 'You can %s only your own post!' % action
+            self.message = 'You can %s only your own comment!' % action
         return True
 
 
@@ -348,13 +349,14 @@ class PostComment(BlogHandler, CommentPermission):
 
 class CommentEdit(PostComment):
     def get(self, action, comment_id):
-        blog_comment = Comment.by_id(comment_id)
-        blog_post = blog_comment.post
-        params = {}
-        params['post'] = blog_post
-        params['content'] = blog_comment.content
-        params['action'] = action
-        self.render('permalink.html', **params)
+        if self.validate(action, comment_id):
+            params = {}
+            if self.message:
+                params['edit_error'] = self.message
+            else:
+                params['action'] = action
+            params['post'] = self.blog_post
+            self.render("permalink.html", **params)
 
 
 ###### Unit 2 HW's
