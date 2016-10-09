@@ -355,6 +355,7 @@ class CommentEdit(PostComment):
                 params['edit_error'] = self.message
             else:
                 params['action'] = action
+                params['content'] = self.comment.content
             params['post'] = self.blog_post
             self.render("permalink.html", **params)
 
