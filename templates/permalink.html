@@ -9,6 +9,7 @@
   {% if action == 'comment' %}
   <div class="comments">
   {{post.render_comment_form(error) | safe}}
+  </div>
   {% endif %}
 
   <h3>Comments</h3>
