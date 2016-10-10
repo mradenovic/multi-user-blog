@@ -284,7 +284,8 @@ class PostLike(PostHandler):
         params['post'] = db.get(key).post
         self.render("permalink.html", **params)
 
-class CommentPermission:
+class CommentPermission(object):
+    """Class to augument comment handling classes"""
     comment = None
     blog_post = None
     user_is_comment_owner = None
