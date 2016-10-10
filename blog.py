@@ -199,9 +199,10 @@ class PostHandler(BlogHandler):
         return self.blog_post
 
     def set_like(self):
-        self.like = self.user and Like.gql('WHERE post = :post AND liked_by = :user',
-                             post=self.blog_post.key(),
-                             user=self.user.key()).get()
+        self.like = self.user and Like.gql(
+            'WHERE post = :post AND liked_by = :user',
+            post=self.blog_post.key(),
+            user=self.user.key()).get()
         return self.like
 
 
