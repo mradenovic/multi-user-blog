@@ -334,16 +334,22 @@ class PostComment(BlogHandler, CommentPermission):
                 if self.comment:
                     self.comment.content = content
                 else:
-                    self.comment = Comment(content=content, post=self.blog_post, created_by=self.user)
+                    self.create_comment(content)
                 key = self.comment.put()
                 # get updated object
-                blog_post = db.get(key).post
+                self.blog_post = db.get(key).post
                 error = ''
                 self.render("permalink.html", post=self.blog_post, error=error)
             else:
                 error = "content, please!"
-                self.render("permalink.html", post=blog_post, error=error)
+                self.render("permalink.html", post=self.blog_post, error=error)
 
+    def create_comment(self, content):
+        params = {}
+        params['content'] = content
+        params['post'] = self.blog_post
+        params['created_by'] = self.user
+        self.comment = Comment(**params)
 
 
 class CommentEdit(PostComment):
