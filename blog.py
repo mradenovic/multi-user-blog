@@ -325,26 +325,23 @@ class PostComment(BlogHandler, CommentPermission):
 
     def post(self, action, post_id):
         """Post comment"""
-        blog_post = Post.by_id(post_id)
-        error = ''
+        if self.validate(action, post_id):
+            content = self.request.get('content')
 
-        if not self.user:
-            error = "only logged in users can post comments!"
-            self.render("permalink.html", post=blog_post, error=error)
-            return
+            if content:
+                if self.comment:
+                    self.comment.content = content
+                else:
+                    self.comment = Comment(content=content, post=self.blog_post, created_by=self.user)
+                key = self.comment.put()
+                # get updated object
+                blog_post = db.get(key).post
+                error = ''
+                self.render("permalink.html", post=self.blog_post, error=error)
+            else:
+                error = "content, please!"
+                self.render("permalink.html", post=blog_post, error=error)
 
-        content = self.request.get('content')
-
-        if content:
-            comment = Comment(content=content, post=blog_post, created_by=self.user)
-            key = comment.put()
-            # get updated object
-            blog_post = db.get(key).post
-
-            self.render("permalink.html", post=blog_post, error=error)
-        else:
-            error = "content, please!"
-            self.render("permalink.html", post=blog_post, error=error)
 
 
 class CommentEdit(PostComment):
