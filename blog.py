@@ -339,10 +339,9 @@ class PostComment(BlogHandler, CommentPermission):
                 # get updated object
                 self.blog_post = db.get(key).post
                 error = ''
-                self.render("permalink.html", post=self.blog_post, error=error)
             else:
                 error = "content, please!"
-                self.render("permalink.html", post=self.blog_post, error=error)
+            self.render("permalink.html", post=self.blog_post, error=error)
 
     def create_comment(self, content):
         params = {}
