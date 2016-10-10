@@ -356,6 +356,17 @@ class CommentEdit(PostComment):
             params['post'] = self.blog_post
             self.render("permalink.html", **params)
 
+class CommentDelete(BlogHandler, CommentPermission):
+    def get(self, action, comment_id):
+        if self.validate(action, comment_id):
+            params = {}
+            if self.message:
+                params['edit_error'] = self.message
+            else:
+                self.comment.delete()
+            params['post'] = self.blog_post
+            self.render("permalink.html", **params)
+
 
 ###### Unit 2 HW's
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -463,6 +474,7 @@ app = webapp2.WSGIApplication([('/?', BlogFront),
                                ('/post/(like)/([0-9]+)', PostLike),
                                ('/post/(comment)/([0-9]+)', PostComment),
                                ('/comment/(edit)/([0-9]+)', CommentEdit),
+                               ('/comment/(delete)/([0-9]+)', CommentDelete),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
