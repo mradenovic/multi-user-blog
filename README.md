@@ -12,4 +12,4 @@ Multi User Blog is the third project built during completion of the [Udacity's](
 * cd to newly created directory: `cd multi-user-blog`
 
 * run the code on your own computer: `dev_appserver.py .`
-* access local server at http://localhost:8080/
+* access local server at [http://localhost:8080/](http://localhost:8080/)
