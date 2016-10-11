@@ -17,17 +17,21 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
 
 secret = 'fart'
 
+
 def render_str(template, **params):
     t = jinja_env.get_template(template)
     return t.render(params)
 
+
 def make_secure_val(val):
     return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
+
 
 def check_secure_val(secure_val):
     val = secure_val.split('|')[0]
     if secure_val == make_secure_val(val):
         return val
+
 
 class BlogHandler(webapp2.RequestHandler):
     """Class for handling common Blog tasks"""
@@ -64,13 +68,17 @@ class BlogHandler(webapp2.RequestHandler):
         uid = self.read_secure_cookie('user_id')
         self.user = uid and User.by_id(int(uid))
 
+
 def render_post(response, post):
     response.out.write('<b>' + post.subject + '</b><br>')
     response.out.write(post.content)
 
-##### user stuff
+# user stuff
+
+
 def make_salt(length=5):
     return ''.join(random.choice(letters) for x in xrange(length))
+
 
 def make_pw_hash(name, pw, salt=None):
     if not salt:
@@ -78,12 +86,15 @@ def make_pw_hash(name, pw, salt=None):
     h = hashlib.sha256(name + pw + salt).hexdigest()
     return '%s,%s' % (salt, h)
 
+
 def valid_pw(name, password, h):
     salt = h.split(',')[0]
     return h == make_pw_hash(name, password, salt)
 
+
 def users_key(group='default'):
     return db.Key.from_path('users', group)
+
 
 class User(db.Model):
     """Class for User model in datastore"""
@@ -115,12 +126,14 @@ class User(db.Model):
             return u
 
 
-##### blog stuff
+# blog stuff
 
 class BlogModel(db.Model):
+
     @classmethod
     def by_id(cls, model_id):
         return cls.get_by_id(int(model_id))
+
 
 class Post(BlogModel):
     """Class for Post model in datastore"""
@@ -155,10 +168,13 @@ class Comment(BlogModel):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("comment.html", comment=self)
 
+
 class BlogFront(BlogHandler):
+
     def get(self):
         posts = Post.all().order('-created')
         self.render('front.html', posts=posts)
+
 
 class PostHandler(BlogHandler):
     """Class for handling common Blog Post tasks"""
@@ -187,7 +203,8 @@ class PostHandler(BlogHandler):
             self.error = 'you can %s any post only once!' % action
 
         if self.error:
-            self.render("permalink.html", post=self.blog_post, edit_error=self.error)
+            self.render("permalink.html", post=self.blog_post,
+                        edit_error=self.error)
 
     def set_user_is_post_owner(self, post_id):
         blog_post = Post.by_id(post_id)
@@ -208,6 +225,7 @@ class PostHandler(BlogHandler):
 
 class PostView(PostHandler):
     """Class for handling Blog Post tasks"""
+
     def get(self, action, post_id):
         super(PostView, self).get(action, post_id)
 
@@ -217,7 +235,9 @@ class PostView(PostHandler):
 
         self.render("permalink.html", post=self.blog_post)
 
+
 class PostDelete(PostHandler):
+
     def get(self, action, post_id):
         super(PostDelete, self).get(action, post_id)
 
@@ -229,7 +249,9 @@ class PostDelete(PostHandler):
         self.blog_post.delete()
         self.redirect('/')
 
+
 class PostCreate(PostHandler):
+
     def get(self, action, post_id):
         super(PostCreate, self).get(action, post_id)
         if self.request.path.find('edit') > -1:
@@ -251,7 +273,8 @@ class PostCreate(PostHandler):
 
         if subject and content:
             if not p:
-                p = Post(subject=subject, content=content, created_by=self.user)
+                p = Post(subject=subject, content=content,
+                         created_by=self.user)
             else:
                 p.subject = subject
                 p.content = content
@@ -259,9 +282,12 @@ class PostCreate(PostHandler):
             self.redirect('/post/view/%s' % str(p.key().id()))
         else:
             error = "subject and content, please!"
-            self.render("post-form.html", subject=subject, content=content, error=error)
+            self.render("post-form.html", subject=subject,
+                        content=content, error=error)
+
 
 class PostEdit(PostCreate):
+
     def get(self, action, post_id):
         super(PostEdit, self).get(action, post_id)
         if not self.user_is_post_owner:
@@ -272,7 +298,9 @@ class PostEdit(PostCreate):
         params['action'] = action
         self.render('post-form.html', **params)
 
+
 class PostLike(PostHandler):
+
     def get(self, action, post_id):
         super(PostLike, self).get(action, post_id)
         if not self.blog_post or self.error:
@@ -283,6 +311,7 @@ class PostLike(PostHandler):
         # get updated object
         params['post'] = db.get(key).post
         self.render("permalink.html", **params)
+
 
 class CommentPermission(object):
     """Class to augument comment handling classes"""
@@ -298,9 +327,9 @@ class CommentPermission(object):
         elif action in ['edit', 'delete']:
             self.comment = Comment.by_id(entity_id)
             if self.comment:
-                self.user_is_comment_owner = self.user and self.user.key() == self.comment.created_by.key()
+                self.user_is_comment_owner = self.user and self.user.key(
+                ) == self.comment.created_by.key()
                 self.blog_post = self.comment.post
-
 
     def validate(self, action, entity_id):
         """Validate if action is permited on entity"""
@@ -315,6 +344,7 @@ class CommentPermission(object):
 
 
 class PostComment(BlogHandler, CommentPermission):
+
     def get(self, action, post_id):
         if self.validate(action, post_id):
             params = {}
@@ -352,6 +382,7 @@ class PostComment(BlogHandler, CommentPermission):
 
 
 class CommentEdit(PostComment):
+
     def get(self, action, comment_id):
         if self.validate(action, comment_id):
             params = {}
@@ -363,7 +394,9 @@ class CommentEdit(PostComment):
             params['post'] = self.blog_post
             self.render("permalink.html", **params)
 
+
 class CommentDelete(BlogHandler, CommentPermission):
+
     def get(self, action, comment_id):
         if self.validate(action, comment_id):
             params = {}
@@ -375,18 +408,25 @@ class CommentDelete(BlogHandler, CommentPermission):
             self.render("permalink.html", **params)
 
 
-###### Unit 2 HW's
+# Unit 2 HW's
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+
+
 def valid_username(username):
     return username and USER_RE.match(username)
 
 PASS_RE = re.compile(r"^.{3,20}$")
+
+
 def valid_password(password):
     return password and PASS_RE.match(password)
 
 EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+
+
 def valid_email(email):
     return not email or EMAIL_RE.match(email)
+
 
 class Signup(BlogHandler):
     """Class for nadling signup tasks"""
@@ -394,6 +434,7 @@ class Signup(BlogHandler):
     password = None
     verify = None
     email = None
+
     def get(self):
         self.render("signup-form.html")
 
@@ -431,9 +472,11 @@ class Signup(BlogHandler):
     def done(self, *a, **kw):
         raise NotImplementedError
 
+
 class Register(Signup):
+
     def done(self):
-        #make sure the user doesn't already exist
+        # make sure the user doesn't already exist
         u = User.by_name(self.username)
         if u:
             msg = 'That user already exists.'
@@ -445,7 +488,9 @@ class Register(Signup):
             self.login(u)
             self.redirect('/')
 
+
 class Login(BlogHandler):
+
     def get(self):
         self.render('login-form.html')
 
@@ -461,12 +506,16 @@ class Login(BlogHandler):
             msg = 'Invalid login'
             self.render('login-form.html', error=msg)
 
+
 class Logout(BlogHandler):
+
     def get(self):
         self.logout()
         self.redirect('/')
 
+
 class Welcome(BlogHandler):
+
     def get(self):
         if self.user:
             self.render('welcome.html', username=self.user.name)
