@@ -15,7 +15,7 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
 
-secret = 'fart'
+SECRET = 'fart'
 
 
 def render_str(template, **params):
@@ -24,7 +24,7 @@ def render_str(template, **params):
 
 
 def make_secure_val(val):
-    return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
+    return '%s|%s' % (val, hmac.new(SECRET, val).hexdigest())
 
 
 def check_secure_val(secure_val):
