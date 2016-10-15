@@ -200,7 +200,7 @@ class PostHandler(BlogHandler):
         elif action in ['like'] and self.user_is_post_owner:
             self.message = 'you can not %s your own post!' % action
         elif action in ['like'] and self.like:
-            self.error = 'you can %s any post only once!' % action
+            self.message = 'you can %s any post only once!' % action
 
         if self.message:
             self.render("permalink.html", post=self.blog_post,
