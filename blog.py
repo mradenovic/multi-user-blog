@@ -97,7 +97,7 @@ def users_key(group='default'):
 
 
 class User(db.Model):
-    """Class for User model in datastore"""
+    """User model in Google app engine datastore"""
     name = db.StringProperty(required=True)
     pw_hash = db.StringProperty(required=True)
     email = db.StringProperty()
@@ -129,6 +129,7 @@ class User(db.Model):
 # blog stuff
 
 class BlogModel(db.Model):
+    """Base model class for Google app engine datastore"""
 
     @classmethod
     def by_id(cls, model_id):
@@ -136,7 +137,7 @@ class BlogModel(db.Model):
 
 
 class Post(BlogModel):
-    """Class for Post model in datastore"""
+    """Post model in Google app engine datastore"""
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created_by = db.ReferenceProperty(User, required=True)
@@ -150,6 +151,7 @@ class Post(BlogModel):
 
 
 class Like(BlogModel):
+    """Like model in Google app engine datastore"""
     post = db.ReferenceProperty(Post, required=True)
     liked_by = db.ReferenceProperty(User, required=True)
     created = db.DateTimeProperty(auto_now_add=True)
@@ -157,6 +159,7 @@ class Like(BlogModel):
 
 
 class Comment(BlogModel):
+    """Comment model in Google app engine datastore"""
     content = db.TextProperty(required=True)
     post = db.ReferenceProperty(Post, required=True)
     created_by = db.ReferenceProperty(User, required=True)
@@ -224,7 +227,6 @@ class PostHandler(BlogHandler):
 
 
 class PostView(PostHandler):
-    """Class for handling Blog Post tasks"""
 
     def get(self, action, post_id):
         super(PostView, self).get(action, post_id)
@@ -356,7 +358,7 @@ class PostComment(BlogHandler, CommentPermission):
             self.render("permalink.html", **params)
 
     def post(self, action, post_id):
-        """Post comment"""
+        """Create new commentor edit existing one"""
         if self.validate(action, post_id):
             content = self.request.get('content')
 
