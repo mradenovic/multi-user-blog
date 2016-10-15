@@ -108,8 +108,8 @@ class User(db.Model):
 
     @classmethod
     def by_name(cls, name):
-        u = User.all().filter('name =', name).get()
-        return u
+        user = User.all().filter('name =', name).get()
+        return user
 
     @classmethod
     def register(cls, name, pw, email=None):
@@ -121,9 +121,9 @@ class User(db.Model):
 
     @classmethod
     def login(cls, name, pw):
-        u = cls.by_name(name)
-        if u and valid_pw(name, pw, u.pw_hash):
-            return u
+        user = cls.by_name(name)
+        if user and valid_pw(name, pw, user.pw_hash):
+            return user
 
 
 # blog stuff
