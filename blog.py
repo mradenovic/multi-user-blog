@@ -181,7 +181,7 @@ class PostHandler(BlogHandler):
     blog_post = None
     user_is_post_owner = None
     like = None
-    error = None
+    message = None
 
     def get(self, action, post_id):
         """Method for handling common Blog Post tasks"""
@@ -196,15 +196,15 @@ class PostHandler(BlogHandler):
                 return
 
         if action in ['edit', 'delete'] and not self.user_is_post_owner:
-            self.error = 'you can %s only your own post!' % action
+            self.message = 'you can %s only your own post!' % action
         elif action in ['like'] and self.user_is_post_owner:
-            self.error = 'you can not %s your own post!' % action
+            self.message = 'you can not %s your own post!' % action
         elif action in ['like'] and self.like:
             self.error = 'you can %s any post only once!' % action
 
-        if self.error:
+        if self.message:
             self.render("permalink.html", post=self.blog_post,
-                        edit_error=self.error)
+                        edit_error=self.message)
 
     def set_user_is_post_owner(self, post_id):
         blog_post = Post.by_id(post_id)
@@ -303,7 +303,7 @@ class PostLike(PostHandler):
 
     def get(self, action, post_id):
         super(PostLike, self).get(action, post_id)
-        if not self.blog_post or self.error:
+        if not self.blog_post or self.message:
             return
         params = {}
         like = Like(post=self.blog_post, liked_by=self.user)
