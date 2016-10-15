@@ -273,8 +273,8 @@ class PostCreate(PostHandler):
 
         if subject and content:
             if not blog_post:
-                blog_post = Post(subject=subject, content=content,
-                         created_by=self.user)
+                blog_post = Post(
+                    subject=subject, content=content, created_by=self.user)
             else:
                 blog_post.subject = subject
                 blog_post.content = content
