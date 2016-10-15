@@ -261,9 +261,9 @@ class PostCreate(PostHandler):
     def post(self, action, post_id):
         """Create new blog post or edit existing one"""
         if post_id:
-            p = Post.by_id(post_id)
+            blog_post = Post.by_id(post_id)
         else:
-            p = None
+            blog_post = None
 
         if not self.user:
             self.redirect('/')
@@ -272,14 +272,14 @@ class PostCreate(PostHandler):
         content = self.request.get('content')
 
         if subject and content:
-            if not p:
-                p = Post(subject=subject, content=content,
+            if not blog_post:
+                blog_post = Post(subject=subject, content=content,
                          created_by=self.user)
             else:
-                p.subject = subject
-                p.content = content
-            p.put()
-            self.redirect('/post/view/%s' % str(p.key().id()))
+                blog_post.subject = subject
+                blog_post.content = content
+            blog_post.put()
+            self.redirect('/post/view/%s' % str(blog_post.key().id()))
         else:
             error = "subject and content, please!"
             self.render("post-form.html", subject=subject,
