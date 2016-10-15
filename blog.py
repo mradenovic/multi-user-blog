@@ -19,8 +19,8 @@ SECRET = 'fart'
 
 
 def render_str(template, **params):
-    t = jinja_env.get_template(template)
-    return t.render(params)
+    template = jinja_env.get_template(template)
+    return template.render(params)
 
 
 def make_secure_val(val):
