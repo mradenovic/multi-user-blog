@@ -349,7 +349,7 @@ class PostComment(BlogHandler, CommentPermission):
         if self.validate(action, post_id):
             params = {}
             if self.message:
-                params['edit_error'] = self.message
+                params['comment_action_error'] = self.message
             else:
                 params['action'] = action
             params['post'] = self.blog_post
@@ -387,7 +387,7 @@ class CommentEdit(PostComment):
         if self.validate(action, comment_id):
             params = {}
             if self.message:
-                params['edit_error'] = self.message
+                params['comment_action_error'] = self.message
             else:
                 params['action'] = action
                 params['content'] = self.comment.content
@@ -401,7 +401,7 @@ class CommentDelete(BlogHandler, CommentPermission):
         if self.validate(action, comment_id):
             params = {}
             if self.message:
-                params['edit_error'] = self.message
+                params['comment_action_error'] = self.message
             else:
                 self.comment.delete()
             params['post'] = self.blog_post
