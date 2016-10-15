@@ -500,9 +500,9 @@ class Login(BlogHandler):
         username = self.request.get('username')
         password = self.request.get('password')
 
-        u = User.login(username, password)
-        if u:
-            self.login(u)
+        user = User.login(username, password)
+        if user:
+            self.login(user)
             self.redirect('/')
         else:
             msg = 'Invalid login'
