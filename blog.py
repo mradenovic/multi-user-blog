@@ -196,6 +196,8 @@ class PostHandler(BlogHandler):
                 self.set_like()
                 self.set_user_is_post_owner(post_id)
             else:
+                self.error(404)
+                self.write('There is no post with id %s' %  post_id)
                 return
 
         if action in ['edit', 'delete'] and not self.user_is_post_owner:
@@ -231,11 +233,8 @@ class PostView(PostHandler):
     def get(self, action, post_id):
         super(PostView, self).get(action, post_id)
 
-        if not self.blog_post:
-            self.error(404)
-            return
-
-        self.render("permalink.html", post=self.blog_post)
+        if self.blog_post:
+            self.render("permalink.html", post=self.blog_post)
 
 
 class PostDelete(PostHandler):
@@ -337,6 +336,7 @@ class CommentPermission(object):
         """Validate if action is permited on entity"""
         self.init_env(action, entity_id)
         if not self.blog_post or (action in ['edit', 'delete'] and not self.comment):
+            self.write('There is no entity with id %s' % entity_id)
             return False
         elif not self.user:
             self.message = 'Only logged in users can %s!' % action
