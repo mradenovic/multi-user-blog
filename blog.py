@@ -297,6 +297,7 @@ class PostEdit(PostCreate):
         params['subject'] = self.blog_post.subject
         params['content'] = self.blog_post.content
         params['action'] = action
+        params['post_id'] = post_id
         self.render('post-form.html', **params)
 
 
@@ -393,6 +394,7 @@ class CommentEdit(PostComment):
             else:
                 params['action'] = action
                 params['content'] = self.comment.content
+                params['post_id'] = self.blog_post.key().id()
             params['post'] = self.blog_post
             self.render("permalink.html", **params)
 
