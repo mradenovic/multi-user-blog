@@ -13,3 +13,5 @@ Multi User Blog is the third project built during completion of the [Udacity's](
 
 * run the code on your own computer: `dev_appserver.py .`
 * access local server at [http://localhost:8080/](http://localhost:8080/)
+
+Live version is hosted at [http://u-multi-user-blog.appspot.com/](http://u-multi-user-blog.appspot.com/)
