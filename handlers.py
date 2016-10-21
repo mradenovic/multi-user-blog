@@ -206,15 +206,18 @@ class PostCreate(BlogHandler, PostPermission):
 class PostEdit(PostCreate):
 
     def get(self, action, post_id):
-        super(PostEdit, self).get(action, post_id)
-        if not self.user_is_post_owner:
-            return
-        params = {}
-        params['subject'] = self.blog_post.subject
-        params['content'] = self.blog_post.content
-        params['action'] = action
-        params['post_id'] = post_id
-        self.render('post-form.html', **params)
+        if self.validate(action, post_id):
+            params = {}
+            params['subject'] = self.blog_post.subject
+            params['content'] = self.blog_post.content
+            params['action'] = action
+            params['post_id'] = post_id
+            self.render('post-form.html', **params)
+        else:
+            params = {}
+            params['post'] = self.blog_post
+            params['edit_error'] = self.message
+            self.render('permalink.html', **params)
 
 
 class PostLike(PostHandler):
