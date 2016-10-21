@@ -102,55 +102,6 @@ class PostPermission(object):
         return True
 
 
-class PostHandler(BlogHandler):
-    """Class for handling common Blog Post tasks"""
-    blog_post = None
-    user_is_post_owner = None
-    like = None
-    message = None
-
-    def get(self, action, post_id):
-        """Method for handling common Blog Post tasks"""
-        if not self.user and action != 'view':
-            self.redirect('/login')
-            return
-        if action not in ['create']:
-            if self.set_blog_post(post_id):
-                self.set_like()
-                self.set_user_is_post_owner(post_id)
-            else:
-                self.error(404)
-                self.write('There is no post with id %s' % post_id)
-                return
-
-        if action in ['edit', 'delete'] and not self.user_is_post_owner:
-            self.message = 'you can %s only your own post!' % action
-        elif action in ['like'] and self.user_is_post_owner:
-            self.message = 'you can not %s your own post!' % action
-        elif action in ['like'] and self.like:
-            self.message = 'you can %s any post only once!' % action
-
-        if self.message:
-            self.render("permalink.html", post=self.blog_post,
-                        edit_error=self.message)
-
-    def set_user_is_post_owner(self, post_id):
-        blog_post = Post.by_id(post_id)
-        is_owner = self.user and self.user.key() == blog_post.created_by.key()
-        self.user_is_post_owner = is_owner
-
-    def set_blog_post(self, post_id):
-        self.blog_post = Post.by_id(post_id)
-        return self.blog_post
-
-    def set_like(self):
-        self.like = self.user and Like.gql(
-            'WHERE post = :post AND liked_by = :user',
-            post=self.blog_post.key(),
-            user=self.user.key()).get()
-        return self.like
-
-
 class PostView(BlogHandler, PostPermission):
 
     def get(self, action, post_id):
