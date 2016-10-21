@@ -136,24 +136,28 @@ class PostCreate(BlogHandler, PostPermission):
             subject = self.request.get('subject')
             content = self.request.get('content')
 
-            if subject and content:
-                if not self.blog_post:
-                    self.blog_post = Post(
-                        subject=subject, content=content, created_by=self.user)
-                else:
-                    self.blog_post.subject = subject
-                    self.blog_post.content = content
-                self.blog_post.put()
-                self.redirect('/post/view/%s' % str(self.blog_post.key().id()))
-            else:
-                error = "subject and content, please!"
-                self.render("post-form.html", subject=subject,
-                            content=content, error=error)
+            self.upsert_blog_post(subject, content)
         else:
             params = {}
             params['post'] = self.blog_post
             params['edit_error'] = self.message
             self.render('permalink.html', **params)
+
+    def upsert_blog_post(self, subject, content):
+        """Update or insert(crate) blog post."""
+        if subject and content:
+            if not self.blog_post:
+                self.blog_post = Post(
+                    subject=subject, content=content, created_by=self.user)
+            else:
+                self.blog_post.subject = subject
+                self.blog_post.content = content
+            self.blog_post.put()
+            self.redirect('/post/view/%s' % str(self.blog_post.key().id()))
+        else:
+            error = "subject and content, please!"
+            self.render("post-form.html", subject=subject,
+                        content=content, error=error)
 
 
 class PostEdit(PostCreate):
