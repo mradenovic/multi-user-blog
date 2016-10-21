@@ -66,7 +66,6 @@ class PostPermission(object):
     user_is_post_owner = None
     like = None
     message = None
-    params = {}
 
     def init_env(self, action, entity_id):
         if action in ['view', 'edit', 'delete', 'like']:
@@ -187,7 +186,6 @@ class CommentPermission(object):
     blog_post = None
     user_is_comment_owner = None
     message = None
-    params = {}
 
     def init_env(self, action, entity_id):
         if action in ['comment']:
