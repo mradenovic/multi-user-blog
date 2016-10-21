@@ -84,7 +84,7 @@ class PostPermission(object):
     def validate(self, action, entity_id):
         """Validate if action is permited on entity"""
         self.init_env(action, entity_id)
-        if not self.blog_post:
+        if not self.blog_post and action not in ['create']:
             self.write('There is no entity with id %s' % entity_id)
             return False
         elif not self.user and action not in ['view']:
@@ -171,40 +171,36 @@ class PostDelete(BlogHandler, PostPermission):
             self.render('permalink.html', **params)
 
 
-class PostCreate(PostHandler):
+class PostCreate(BlogHandler, PostPermission):
 
     def get(self, action, post_id):
-        super(PostCreate, self).get(action, post_id)
-        if self.request.path.find('edit') > -1:
-            return
-        self.render("post-form.html", action=action)
+        if self.validate(action, post_id):
+            self.render("post-form.html", action=action)
 
     def post(self, action, post_id):
         """Create new blog post or edit existing one"""
-        if post_id:
-            blog_post = Post.by_id(post_id)
-        else:
-            blog_post = None
+        if self.validate(action, post_id):
+            subject = self.request.get('subject')
+            content = self.request.get('content')
 
-        if not self.user:
-            self.redirect('/')
-
-        subject = self.request.get('subject')
-        content = self.request.get('content')
-
-        if subject and content:
-            if not blog_post:
-                blog_post = Post(
-                    subject=subject, content=content, created_by=self.user)
+            if subject and content:
+                if not self.blog_post:
+                    self.blog_post = Post(
+                        subject=subject, content=content, created_by=self.user)
+                else:
+                    self.blog_post.subject = subject
+                    self.blog_post.content = content
+                self.blog_post.put()
+                self.redirect('/post/view/%s' % str(self.blog_post.key().id()))
             else:
-                blog_post.subject = subject
-                blog_post.content = content
-            blog_post.put()
-            self.redirect('/post/view/%s' % str(blog_post.key().id()))
+                error = "subject and content, please!"
+                self.render("post-form.html", subject=subject,
+                            content=content, error=error)
         else:
-            error = "subject and content, please!"
-            self.render("post-form.html", subject=subject,
-                        content=content, error=error)
+            params = {}
+            params['post'] = self.blog_post
+            params['edit_error'] = self.message
+            self.render('permalink.html', **params)
 
 
 class PostEdit(PostCreate):
