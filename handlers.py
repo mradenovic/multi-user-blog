@@ -1,4 +1,5 @@
 """Blog handlers"""
+
 from validators import valid_username
 from validators import valid_password
 from validators import valid_email
@@ -13,6 +14,7 @@ from encrypt import make_secure_val, check_secure_val
 
 class BlogHandler(webapp2.RequestHandler):
     """Base class for handling common Blog tasks"""
+
     user = None
 
     def write(self, *a, **kw):
@@ -100,7 +102,6 @@ class PostPermission(object):
 
     def render_message(self):
         """Render message and return false"""
-
         params = {}
         params['post'] = self.blog_post
         params['edit_error'] = self.message
@@ -199,7 +200,6 @@ class CommentPermission(object):
 
     def validate(self, action, entity_id):
         """Validate if action is permited on entity"""
-
         self.init_env(action, entity_id)
         if not self.blog_post or (action in ['edit', 'delete'] and not self.comment):
             self.write('There is no entity with id %s' % entity_id)
@@ -282,6 +282,7 @@ class CommentDelete(BlogHandler, CommentPermission):
 
 class Signup(BlogHandler):
     """Class for nadling signup tasks"""
+
     username = None
     password = None
     verify = None
