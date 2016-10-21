@@ -12,7 +12,7 @@ from encrypt import make_secure_val, check_secure_val
 
 
 class BlogHandler(webapp2.RequestHandler):
-    """Class for handling common Blog tasks"""
+    """Base class for handling common Blog tasks"""
     user = None
 
     def write(self, *a, **kw):
@@ -52,9 +52,6 @@ def render_post(response, post):
     response.out.write(post.content)
 
 
-# blog stuff
-
-
 class BlogFront(BlogHandler):
 
     def get(self):
@@ -64,6 +61,7 @@ class BlogFront(BlogHandler):
 
 class PostPermission(object):
     """Class to augument post handling classes"""
+
     blog_post = None
     user_is_post_owner = None
     like = None
@@ -135,7 +133,6 @@ class PostCreate(BlogHandler, PostPermission):
             self.render("post-form.html", action=action)
 
     def post(self, action, post_id):
-        """Create new blog post or edit existing one"""
         if self.validate(action, post_id):
             subject = self.request.get('subject')
             content = self.request.get('content')
@@ -143,7 +140,7 @@ class PostCreate(BlogHandler, PostPermission):
             self.upsert_blog_post(subject, content)
 
     def upsert_blog_post(self, subject, content):
-        """Update or insert(crate) blog post."""
+        """Update or insert(create) blog post."""
         if subject and content:
             if not self.blog_post:
                 self.blog_post = Post(
@@ -185,6 +182,7 @@ class PostLike(BlogHandler, PostPermission):
 
 class CommentPermission(object):
     """Class to augument comment handling classes"""
+
     comment = None
     blog_post = None
     user_is_comment_owner = None
@@ -203,6 +201,7 @@ class CommentPermission(object):
 
     def validate(self, action, entity_id):
         """Validate if action is permited on entity"""
+
         self.init_env(action, entity_id)
         if not self.blog_post or (action in ['edit', 'delete'] and not self.comment):
             self.write('There is no entity with id %s' % entity_id)
@@ -228,6 +227,7 @@ class PostComment(BlogHandler, CommentPermission):
 
     def post(self, action, post_id):
         """Create new commentor edit existing one"""
+
         if self.validate(action, post_id):
             content = self.request.get('content')
 
@@ -280,7 +280,6 @@ class CommentDelete(BlogHandler, CommentPermission):
             self.render("permalink.html", **params)
 
 
-# Unit 2 HW's
 class Signup(BlogHandler):
     """Class for nadling signup tasks"""
     username = None
