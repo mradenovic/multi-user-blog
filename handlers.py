@@ -95,8 +95,10 @@ class PostPermission(object):
             return False
         elif action in ['like'] and self.user_is_post_owner:
             self.message = 'you can not %s your own post!' % action
+            return False
         elif action in ['like'] and self.like:
             self.message = 'you can %s any post only once!' % action
+            return False
         return True
 
 
@@ -220,18 +222,21 @@ class PostEdit(PostCreate):
             self.render('permalink.html', **params)
 
 
-class PostLike(PostHandler):
+class PostLike(BlogHandler, PostPermission):
 
     def get(self, action, post_id):
-        super(PostLike, self).get(action, post_id)
-        if not self.blog_post or self.message:
-            return
-        params = {}
-        like = Like(post=self.blog_post, liked_by=self.user)
-        key = like.put()
-        # get updated object
-        params['post'] = db.get(key).post
-        self.render("permalink.html", **params)
+        if self.validate(action, post_id):
+            params = {}
+            like = Like(post=self.blog_post, liked_by=self.user)
+            key = like.put()
+            # get updated object
+            params['post'] = db.get(key).post
+            self.render("permalink.html", **params)
+        else:
+            params = {}
+            params['post'] = self.blog_post
+            params['edit_error'] = self.message
+            self.render('permalink.html', **params)
 
 
 class CommentPermission(object):
