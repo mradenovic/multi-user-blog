@@ -92,14 +92,23 @@ class PostPermission(object):
             return False
         elif action in ['edit', 'delete'] and not self.user_is_post_owner:
             self.message = 'you can %s only your own post!' % action
-            return False
+            return self.render_message()
         elif action in ['like'] and self.user_is_post_owner:
             self.message = 'you can not %s your own post!' % action
-            return False
+            return self.render_message()
         elif action in ['like'] and self.like:
             self.message = 'you can %s any post only once!' % action
-            return False
+            return self.render_message()
         return True
+
+    def render_message(self):
+        """Render message and return false"""
+
+        params = {}
+        params['post'] = self.blog_post
+        params['edit_error'] = self.message
+        self.render('permalink.html', **params)
+        return False
 
 
 class PostView(BlogHandler, PostPermission):
@@ -117,11 +126,6 @@ class PostDelete(BlogHandler, PostPermission):
                 comment.delete()
             self.blog_post.delete()
             self.redirect('/')
-        else:
-            params = {}
-            params['post'] = self.blog_post
-            params['edit_error'] = self.message
-            self.render('permalink.html', **params)
 
 
 class PostCreate(BlogHandler, PostPermission):
@@ -137,11 +141,6 @@ class PostCreate(BlogHandler, PostPermission):
             content = self.request.get('content')
 
             self.upsert_blog_post(subject, content)
-        else:
-            params = {}
-            params['post'] = self.blog_post
-            params['edit_error'] = self.message
-            self.render('permalink.html', **params)
 
     def upsert_blog_post(self, subject, content):
         """Update or insert(crate) blog post."""
@@ -170,11 +169,6 @@ class PostEdit(PostCreate):
             params['action'] = action
             params['post_id'] = post_id
             self.render('post-form.html', **params)
-        else:
-            params = {}
-            params['post'] = self.blog_post
-            params['edit_error'] = self.message
-            self.render('permalink.html', **params)
 
 
 class PostLike(BlogHandler, PostPermission):
@@ -187,11 +181,6 @@ class PostLike(BlogHandler, PostPermission):
             # get updated object
             params['post'] = db.get(key).post
             self.render("permalink.html", **params)
-        else:
-            params = {}
-            params['post'] = self.blog_post
-            params['edit_error'] = self.message
-            self.render('permalink.html', **params)
 
 
 class CommentPermission(object):
