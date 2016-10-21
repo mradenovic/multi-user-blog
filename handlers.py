@@ -92,6 +92,7 @@ class PostPermission(object):
             return False
         elif action in ['edit', 'delete'] and not self.user_is_post_owner:
             self.message = 'you can %s only your own post!' % action
+            return False
         elif action in ['like'] and self.user_is_post_owner:
             self.message = 'you can not %s your own post!' % action
         elif action in ['like'] and self.like:
@@ -147,6 +148,7 @@ class PostHandler(BlogHandler):
             user=self.user.key()).get()
         return self.like
 
+
 class PostView(BlogHandler, PostPermission):
 
     def get(self, action, post_id):
@@ -154,18 +156,19 @@ class PostView(BlogHandler, PostPermission):
             self.render('permalink.html', post=self.blog_post)
 
 
-class PostDelete(PostHandler):
+class PostDelete(BlogHandler, PostPermission):
 
     def get(self, action, post_id):
-        super(PostDelete, self).get(action, post_id)
-
-        if not self.user_is_post_owner:
-            return
-
-        for comment in self.blog_post.comment_set:
-            comment.delete()
-        self.blog_post.delete()
-        self.redirect('/')
+        if self.validate(action, post_id):
+            for comment in self.blog_post.comment_set:
+                comment.delete()
+            self.blog_post.delete()
+            self.redirect('/')
+        else:
+            params = {}
+            params['post'] = self.blog_post
+            params['edit_error'] = self.message
+            self.render('permalink.html', **params)
 
 
 class PostCreate(PostHandler):
