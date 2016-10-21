@@ -226,23 +226,25 @@ class PostComment(BlogHandler, CommentPermission):
             self.render("permalink.html", **params)
 
     def post(self, action, post_id):
-        """Create new commentor edit existing one"""
-
         if self.validate(action, post_id):
             content = self.request.get('content')
+            self.upsert_comment(content)
+            self.render("permalink.html", action=action,
+                        post=self.blog_post, comment_action_error=self.message)
 
-            if content:
-                if self.comment:
-                    self.comment.content = content
-                else:
-                    self.create_comment(content)
-                key = self.comment.put()
-                # get updated object
-                self.blog_post = db.get(key).post
-                error = ''
+    def upsert_comment(self, content):
+        """Update or insert(create) comment."""
+        if content:
+            if self.comment:
+                self.comment.content = content
             else:
-                error = "content, please!"
-            self.render("permalink.html", post=self.blog_post, error=error)
+                self.create_comment(content)
+            key = self.comment.put()
+            # get updated object
+            self.blog_post = db.get(key).post
+            self.message = ''
+        else:
+            self.message = "content, please!"
 
     def create_comment(self, content):
         params = {}
