@@ -62,6 +62,43 @@ class BlogFront(BlogHandler):
         self.render('front.html', posts=posts)
 
 
+class PostPermission(object):
+    """Class to augument post handling classes"""
+    blog_post = None
+    user_is_post_owner = None
+    like = None
+    message = None
+    params = {}
+
+    def init_env(self, action, entity_id):
+        if action in ['view', 'edit', 'delete', 'like']:
+            self.blog_post = Post.by_id(entity_id)
+            if self.blog_post:
+                self.user_is_post_owner = self.user and self.user.key(
+                ) == self.blog_post.created_by.key()
+                self.like = self.user and Like.gql(
+                    'WHERE post = :post AND liked_by = :user',
+                    post=self.blog_post.key(),
+                    user=self.user.key()).get()
+
+    def validate(self, action, entity_id):
+        """Validate if action is permited on entity"""
+        self.init_env(action, entity_id)
+        if not self.blog_post:
+            self.write('There is no entity with id %s' % entity_id)
+            return False
+        elif not self.user and action not in ['view']:
+            self.redirect('/login')
+            return False
+        elif action in ['edit', 'delete'] and not self.user_is_post_owner:
+            self.message = 'you can %s only your own post!' % action
+        elif action in ['like'] and self.user_is_post_owner:
+            self.message = 'you can not %s your own post!' % action
+        elif action in ['like'] and self.like:
+            self.message = 'you can %s any post only once!' % action
+        return True
+
+
 class PostHandler(BlogHandler):
     """Class for handling common Blog Post tasks"""
     blog_post = None
@@ -110,14 +147,11 @@ class PostHandler(BlogHandler):
             user=self.user.key()).get()
         return self.like
 
-
-class PostView(PostHandler):
+class PostView(BlogHandler, PostPermission):
 
     def get(self, action, post_id):
-        super(PostView, self).get(action, post_id)
-
-        if self.blog_post:
-            self.render("permalink.html", post=self.blog_post)
+        if self.validate(action, post_id):
+            self.render('permalink.html', post=self.blog_post)
 
 
 class PostDelete(PostHandler):
