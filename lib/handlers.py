@@ -226,11 +226,9 @@ class PostComment(BlogHandler, CommentPermission):
     def post(self, action, post_id):
         if self.validate(action, post_id):
             content = self.request.get('content')
-            self.upsert_comment(content)
-            self.render("permalink.html", action=action,
-                        post=self.blog_post, comment_action_error=self.message)
+            self.upsert_comment(action, content)
 
-    def upsert_comment(self, content):
+    def upsert_comment(self, action, content):
         """Update or insert(create) comment."""
         if content:
             if self.comment:
@@ -240,9 +238,11 @@ class PostComment(BlogHandler, CommentPermission):
             key = self.comment.put()
             # get updated object
             self.blog_post = db.get(key).post
-            self.message = ''
+            self.redirect('/post/view/%s' % str(self.blog_post.key().id()))
         else:
             self.message = "content, please!"
+            self.render("permalink.html", content=content, action=action,
+                        post=self.blog_post, comment_action_error=self.message)
 
     def create_comment(self, content):
         params = {}
