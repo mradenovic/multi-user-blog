@@ -13,6 +13,7 @@ def users_key(group='default'):
 
 class User(db.Model):
     """User model"""
+
     name = db.StringProperty(required=True)
     pw_hash = db.StringProperty(required=True)
     email = db.StringProperty()
@@ -51,6 +52,7 @@ class BlogModel(db.Model):
 
 class Post(BlogModel):
     """Post model"""
+
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created_by = db.ReferenceProperty(User, required=True)
@@ -65,6 +67,7 @@ class Post(BlogModel):
 
 class Like(BlogModel):
     """Like model"""
+
     post = db.ReferenceProperty(Post, required=True)
     liked_by = db.ReferenceProperty(User, required=True)
     created = db.DateTimeProperty(auto_now_add=True)
@@ -73,6 +76,7 @@ class Like(BlogModel):
 
 class Comment(BlogModel):
     """Comment model"""
+    
     content = db.TextProperty(required=True)
     post = db.ReferenceProperty(Post, required=True)
     created_by = db.ReferenceProperty(User, required=True)
